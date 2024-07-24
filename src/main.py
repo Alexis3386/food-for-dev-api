@@ -3,7 +3,7 @@ from fastapi_pagination import add_pagination
 import models
 from database import engine
 
-import recipes.router, users.router, ingredients.router, steps.router, auth.router
+import recipes.router, users.router, ingredients.router, steps.router, auth.router, category.router
 
 
 app = FastAPI()
@@ -15,5 +15,7 @@ app.include_router(recipes.router.router)
 app.include_router(users.router.router)
 app.include_router(ingredients.router.router)
 app.include_router(steps.router.router)
+app.include_router(category.router.router)
+
 
 add_pagination(app)

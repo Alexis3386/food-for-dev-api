@@ -35,7 +35,7 @@ pip install -r requirements.txt
 
 ### 4. Créer un fichier .env
 
-À la racine du projet, créez un fichier .env et ajoutez-y les informations suivantes 
+À la racine du projet, créez un fichier .env et ajoutez-y les informations suivantes
 
 DATABASE_URL=sqlite:///./test.db  # Remplacez par l'URL de votre base de données
 SECRET_KEY=your_secret_key       # Remplacez par votre clé secrète
@@ -54,7 +54,7 @@ alembic upgrade head
 ## Démarrage du serveur
 Pour démarrer le serveur FastAPI, deplacer vous dans le dosiier src et exécutez :
 ```bash
-uvicorn app.main:app --reload
+uvicorn main:app --reload
 ```
 
 Le serveur sera disponible à l'adresse http://127.0.0.1:8000.

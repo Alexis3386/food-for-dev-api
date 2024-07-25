@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 from starlette import status
 
 from auth.router import get_current_user, bcrypt_context
@@ -26,7 +27,7 @@ user_dependency = Annotated[dict, Depends(get_current_user)]
 
 @router.get("/", status_code=status.HTTP_200_OK)
 async def get_user(user: user_dependency, db: db_dependency):
-    user_model = db.query(Users).filter(Users.id == user.get("id")).first()
+    user_model = db.scalar(select(Users).where(Users.id == user.get("id")))
     if user_model is None:
         raise HTTPException(status_code=401, detail="")
     return user_model

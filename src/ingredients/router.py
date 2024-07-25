@@ -36,6 +36,12 @@ def get_ingredient_by_id(db: db_dependency, id: int):
     return ingredient
 
 
+@router.get("/user/favorite_ingredient", status_code=status.HTTP_200_OK)
+async def get_user_ingredient_favorite(db: db_dependency, user: user_dependency):
+    user_model = db.query(Users).filter(Users.id == user.get("id")).first()
+    return user_model.ingredients_favori
+
+
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def create_ingredient(
         db: db_dependency,

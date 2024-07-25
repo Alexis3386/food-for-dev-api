@@ -5,8 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi_pagination import Page
 from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy import select
-from sqlalchemy.orm import Session, joinedload
-from sqlalchemy.testing.pickleable import User
+from sqlalchemy.orm import Session
 from starlette import status
 
 from auth.router import get_current_user

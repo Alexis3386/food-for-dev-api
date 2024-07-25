@@ -1,4 +1,4 @@
-from typing import Annotated, Any
+from typing import Annotated, Any, List, Type
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -25,7 +25,7 @@ user_dependency = Annotated[dict, Depends(get_current_user)]
 
 
 @router.get("/", status_code=status.HTTP_200_OK)
-def get_category(db: db_dependency) -> list[tuple[Any]]:
+def get_category(db: db_dependency) -> list[CategoryRequest]:
     """
     Retrieve all categories from the database.
 

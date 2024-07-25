@@ -1,10 +1,14 @@
 from fastapi import FastAPI
 from fastapi_pagination import add_pagination
+
+import auth.router
+import category.router
+import ingredients.router
 import models
+import recipes.router
+import steps.router
+import users.router
 from database import engine
-
-import recipes.router, users.router, ingredients.router, steps.router, auth.router, category.router
-
 
 app = FastAPI()
 

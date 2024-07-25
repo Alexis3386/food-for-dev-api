@@ -1,11 +1,13 @@
-from typing import Annotated
+from typing import Annotated, Any
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
+
+from auth.router import get_current_user
+from database import SessionLocal
 from models import Category
 from .schemas import CategoryRequest
-from database import SessionLocal
-from auth.router import get_current_user
 
 router = APIRouter(prefix="/category", tags=["category"])
 
@@ -23,7 +25,7 @@ user_dependency = Annotated[dict, Depends(get_current_user)]
 
 
 @router.get("/", status_code=status.HTTP_200_OK)
-def get_category(db: db_dependency) -> list[CategoryRequest]:
+def get_category(db: db_dependency) -> list[tuple[Any]]:
     """
     Retrieve all categories from the database.
 
@@ -60,7 +62,7 @@ def create_category(
 
 
 @router.put("/{category_id}", status_code=status.HTTP_200_OK)
-def update_step(
+def update_category(
     db: db_dependency,
     user: user_dependency,
     category_id: int,

@@ -1,12 +1,13 @@
 from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
-from models import Ingredient, IngredientRecipe
-from .schemas import IngredientRequest
-from database import SessionLocal
-from auth.router import get_current_user
 
+from auth.router import get_current_user
+from database import SessionLocal
+from models import Ingredient, IngredientRecipe, Users
+from .schemas import IngredientRequest
 
 router = APIRouter(prefix="/ingredients", tags=["ingredients"])
 
@@ -37,9 +38,9 @@ def get_ingredient_by_id(db: db_dependency, id: int):
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def create_ingredient(
-    db: db_dependency,
-    create_ingredient_request: IngredientRequest,
-    user: user_dependency,
+        db: db_dependency,
+        create_ingredient_request: IngredientRequest,
+        user: user_dependency,
 ) -> None:
     create_ingredient_model = Ingredient(name=create_ingredient_request.name)
     db.add(create_ingredient_model)
@@ -48,7 +49,10 @@ def create_ingredient(
 
 @router.put("/{ingredient_id}", status_code=status.HTTP_200_OK)
 def update_ingredient(
-    db: db_dependency, ingredient_id: int, update_ingredient_request: IngredientRequest
+        db: db_dependency,
+        user: user_dependency,
+        ingredient_id: int,
+        update_ingredient_request: IngredientRequest
 ):
     stored_ingredient_data = (
         db.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
@@ -77,4 +81,16 @@ def delete_ingredient(db: db_dependency, user: user_dependency, ingredient_id: i
         )
 
     db.delete(ingredient)
+    db.commit()
+
+
+@router.post("/favorite_ingredient/{ingredient_id}", status_code=status.HTTP_200_OK)
+async def add_user_ingredient_favori(
+        db: db_dependency, user: user_dependency, ingredient_id: int
+):
+    ingredient = db.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
+    user_model = db.query(Users).filter(Users.id == user.get("id")).first()
+    if user is None or ingredient is None:
+        raise HTTPException(status_code=404, detail="User or Ingredient not found")
+    user_model.ingredients_favori.append(ingredient)
     db.commit()

@@ -1,7 +1,16 @@
-from typing import Annotated, Optional
+from datetime import datetime
+from typing import Annotated, Optional, Type
+
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from fastapi_pagination import Page
+from fastapi_pagination.ext.sqlalchemy import paginate
+from sqlalchemy import select
+from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.testing.pickleable import User
 from starlette import status
+
+from auth.router import get_current_user
+from database import SessionLocal
 from models import Recipe, Users, IngredientRecipe, Ingredient, Step
 from .schemas import (
     RecipeRequest,
@@ -11,12 +20,6 @@ from .schemas import (
     AddIngredientToRecipe,
     RecipeBase,
 )
-from database import SessionLocal
-from auth.router import get_current_user
-from fastapi_pagination import Page
-from fastapi_pagination.ext.sqlalchemy import paginate
-from datetime import datetime
-from sqlalchemy import select
 
 router = APIRouter(prefix="/recipes", tags=["recipes"])
 
@@ -35,7 +38,7 @@ user_dependency = Annotated[dict, Depends(get_current_user)]
 
 @router.get("/category/{category_id}", status_code=status.HTTP_200_OK)
 async def get_recipe_by_category(
-    db: db_dependency, category_id: int
+        db: db_dependency, category_id: int
 ) -> Page[RecipeBase]:
     return paginate(
         db,
@@ -48,7 +51,7 @@ async def get_recipe_by_category(
 
 @router.get("/ingredients/{recipe_id}", status_code=status.HTTP_200_OK)
 async def get_ingredients_recipe(
-    db: db_dependency, recipe_id: int
+        db: db_dependency, recipe_id: int
 ) -> list[IngredientRecipeSch]:
     ingredients = (
         db.query(IngredientRecipe.quantity, IngredientRecipe.unit, Ingredient.name)
@@ -111,7 +114,7 @@ async def get_recipe_by_id(db: db_dependency, recipe_id: int) -> Optional[Recipe
 
 @router.post("/favorite_recipe/{recipe_id}", status_code=status.HTTP_200_OK)
 async def add_user_recipe_favori(
-    db: db_dependency, user: user_dependency, recipe_id: int
+        db: db_dependency, user: user_dependency, recipe_id: int
 ):
     recipe = db.query(Recipe).filter(Recipe.id == recipe_id).first()
     user_model = db.query(Users).filter(Users.id == user.get("id")).first()
@@ -121,9 +124,15 @@ async def add_user_recipe_favori(
     db.commit()
 
 
+@router.get("/user/favorite_recipe", status_code=status.HTTP_200_OK)
+async def get_user_recipe_favorite(db: db_dependency, user: user_dependency):
+    user_model = db.query(Users).filter(Users.id == user.get("id")).first()
+    return user_model.recipes_favori
+
+
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_recipe(
-    db: db_dependency, user: user_dependency, create_recipe_request: RecipeRequest
+        db: db_dependency, user: user_dependency, create_recipe_request: RecipeRequest
 ):
     user_model = db.query(Users).filter(Users.id == user.get("id")).first()
     if user_model is None:
@@ -151,9 +160,9 @@ async def create_recipe(
     "/add_ingredient/{recipe_id}/{ingredient_id}", status_code=status.HTTP_201_CREATED
 )
 async def create_recipe(
-    db: db_dependency,
-    user: user_dependency,
-    add_ingredient_request: AddIngredientToRecipe,
+        db: db_dependency,
+        user: user_dependency,
+        add_ingredient_request: AddIngredientToRecipe,
 ):
     user_model = db.query(Users).filter(Users.id == user.get("id")).first()
     if user_model is None:
@@ -171,7 +180,7 @@ async def create_recipe(
 @router.delete("/{recipe_id}", status_code=status.HTTP_200_OK)
 async def delete_recipe(db: db_dependency, user: user_dependency, recipe_id: int):
     if user.get("user_role") == "admin" or get_recipe_user_id(
-        db, recipe_id
+            db, recipe_id
     ) == user.get("id"):
         db.query(Step).filter(Step.recipe_id == recipe_id).delete()
         db.query(IngredientRecipe).filter(
@@ -185,13 +194,13 @@ async def delete_recipe(db: db_dependency, user: user_dependency, recipe_id: int
 
 @router.patch("/{recipe_id}", status_code=status.HTTP_200_OK)
 async def update_recipe(
-    db: db_dependency,
-    user: user_dependency,
-    recipe_id: int,
-    update_recipe_request: RecipeRequest,
+        db: db_dependency,
+        user: user_dependency,
+        recipe_id: int,
+        update_recipe_request: RecipeRequest,
 ):
     if user.get("user_role") == "admin" or get_recipe_user_id(
-        db, recipe_id
+            db, recipe_id
     ) == user.get("id"):
         stored_recipe_data = db.query(Recipe).filter(Recipe.id == recipe_id).first()
         if not stored_recipe_data:

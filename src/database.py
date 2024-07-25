@@ -19,11 +19,11 @@ The `SessionLocal` is a session factory.
 """
 
 import os
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm import DeclarativeBase
-from dotenv import load_dotenv
 
+from dotenv import load_dotenv
+from sqlalchemy import create_engine
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import sessionmaker
 
 load_dotenv()
 SQLALCHEMY_DATABASE_URL = os.environ.get("DATABASE_URL")

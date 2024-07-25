@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from typing import Optional, List
 
 from sqlalchemy import (
@@ -12,6 +13,7 @@ from sqlalchemy import (
     DateTime,
 )
 from sqlalchemy.orm import relationship, Mapped, mapped_column
+
 from database import Base
 
 
@@ -28,6 +30,9 @@ class Users(Base):
     role = Column(String)
     recipes_favori = relationship(
         "Recipe", secondary="user_recipe_favori", back_populates="users"
+    )
+    ingredients_favori = relationship(
+        "Ingredient", secondary="user_ingredient_favori", back_populates=""
     )
     recipes_created: Mapped[List[Recipe]] = relationship(
         "Recipe", back_populates="users_has_created"
@@ -94,6 +99,9 @@ class Ingredient(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name = Column(String, unique=True)
 
+    users = relationship(
+        "Users", secondary="user_ingredient_favori", back_populates="ingredients_favori"
+    )
     recipes: Mapped[List["IngredientRecipe"]] = relationship(
         "IngredientRecipe", back_populates="ingredient"
     )
@@ -122,4 +130,11 @@ user_recipe_favori = Table(
     Base.metadata,
     Column("user_id", ForeignKey("users.id")),
     Column("recipe_id", ForeignKey("recipe.id")),
+)
+
+user_ingredient_favori = Table(
+    "user_ingredient_favori",
+    Base.metadata,
+    Column("user_id", ForeignKey("users.id")),
+    Column("ingredient_id", ForeignKey("ingredient.id")),
 )

@@ -1,8 +1,8 @@
-from pydantic import BaseModel, Field
-from typing import Optional, List
 from datetime import datetime
+from typing import Optional, List
 
 from pydantic import BaseModel
+from pydantic import Field
 
 
 class RecipeBase(BaseModel):
@@ -43,6 +43,9 @@ class IngredientRecipeSch(BaseModel):
     unit: Optional[str] = None
     name: str
     id: int
+
+    class Config:
+        from_attributes = True
 
 
 class StepSch(BaseModel):

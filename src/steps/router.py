@@ -1,12 +1,13 @@
 from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
-from .schemas import StepRequest
-from models import Step
-from database import SessionLocal
-from auth.router import get_current_user
 
+from auth.router import get_current_user
+from database import SessionLocal
+from models import Step
+from .schemas import StepRequest
 
 router = APIRouter(prefix="/steps", tags=["steps"])
 

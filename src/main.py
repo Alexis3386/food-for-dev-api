@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi_pagination import add_pagination
+from fastapi.middleware.cors import CORSMiddleware
 
 import auth.router
 import category.router
@@ -11,6 +12,21 @@ import users.router
 from database import engine
 
 app = FastAPI()
+
+
+def setup_cors(app: FastAPI):
+    origins = [
+        "http://localhost:3000",
+    ]
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
 
 models.Base.metadata.create_all(bind=engine)
 
